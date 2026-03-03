@@ -46,33 +46,36 @@ def get_and_transfer_api_data_to_s3(**context):
     """"""
 
     start_date, end_date = get_dates(**context)
+
+    # Добавляем вывод сырых значений переменных в лог
+    logging.info(f"Raw start_date: {repr(start_date)}")  # выводит raw string для start_date
+    logging.info(f"Raw end_date: {repr(end_date)}")  # выводит raw string для end_date
+
     logging.info(f"💻 Start load for dates: {start_date}/{end_date}")
+
     con = duckdb.connect()
 
-    con.sql(
-        f"""
-        SET TIMEZONE='UTC';
-        INSTALL httpfs;
-        LOAD httpfs;
-        SET s3_url_style = 'path';
-        SET s3_endpoint = 'minio:9000';
-        SET s3_access_key_id = '{ACCESS_KEY}';
-        SET s3_secret_access_key = '{SECRET_KEY}';
-        SET s3_use_ssl = FALSE;
+    # Тестовый запрос сначала
+    test_url = f"https://archive-api.open-meteo.com/v1/archive?latitude=52.52&longitude=13.41&start_date={start_date}&end_date={end_date}&hourly=temperature_2m,relative_humidity_2m,dew_point_2m&timezone=Europe%2FMoscow"
+    logging.info(f"Test URL: {test_url}")
 
-        COPY
-        (
-            SELECT
-                *
-            FROM
-                read_csv_auto('https://earthquake.usgs.gov/fdsnws/event/1/query?format=csv&starttime={start_date}&endtime={end_date}') AS res
-        ) TO 's3://prod/{LAYER}/{SOURCE}/{start_date}/{start_date}_00-00-00.gz.parquet';
+    con.sql(f"""
+            SET TIMEZONE='UTC';
+            INSTALL httpfs;
+            LOAD httpfs;
+            SET s3_url_style = 'path';
+            SET s3_endpoint = 'minio:9000';
+            SET s3_access_key_id = '{ACCESS_KEY}';
+            SET s3_secret_access_key = '{SECRET_KEY}';
+            SET s3_use_ssl = FALSE;
 
-        """,
-    )
+            COPY (
+                SELECT * FROM read_csv_auto('{test_url}')
+            ) TO 's3://prod/{LAYER}/{SOURCE}/{start_date}/{start_date}_00-00-00.gz.parquet';
+        """)
 
     con.close()
-    logging.info(f"✅ Download for date success: {start_date}")
+    logging.info(f"✅ Success: {start_date}")
 
 
 with DAG(

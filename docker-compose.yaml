@@ -84,6 +84,11 @@ x-airflow-common:
       condition: service_healthy
     postgres:
       condition: service_healthy
+  dns:
+    - 8.8.8.8
+    - 1.1.1.1
+  extra_hosts:
+    - "earthquake.usgs.gov:3.174.46.114"  # Актуальный IP (проверьте на хосте)
 
 services:
   postgres_dwh:
@@ -162,6 +167,11 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    extra_hosts:
+      - "earthquake.usgs.gov:152.61.228.50"
 
   airflow-scheduler:
     <<: *airflow-common
@@ -177,6 +187,11 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    extra_hosts:
+      - "earthquake.usgs.gov:152.61.228.50"
 
   airflow-worker:
     <<: *airflow-common
@@ -200,6 +215,11 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    extra_hosts:
+      - "earthquake.usgs.gov:152.61.228.50"
 
   airflow-triggerer:
     <<: *airflow-common
@@ -215,6 +235,11 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    extra_hosts:
+      - "earthquake.usgs.gov:152.61.228.50"
 
   airflow-init:
     <<: *airflow-common
