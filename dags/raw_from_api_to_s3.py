@@ -56,7 +56,7 @@ def get_and_transfer_api_data_to_s3(**context):
     con = duckdb.connect()
 
     # Тестовый запрос сначала
-    test_url = f"https://archive-api.open-meteo.com/v1/archive?latitude=52.52&longitude=13.41&start_date={start_date}&end_date={end_date}&hourly=temperature_2m,relative_humidity_2m,dew_point_2m&timezone=Europe%2FMoscow"
+    test_url = f"https://archive-api.open-meteo.com/v1/archive?latitude=52.52&longitude=13.41&start_date={start_date}&end_date={end_date}&hourly=temperature_2m,relative_humidity_2m,dew_point_2m&timezone=Europe%2FMoscow&format=csv"
     logging.info(f"Test URL: {test_url}")
 
     con.sql(f"""
@@ -70,7 +70,13 @@ def get_and_transfer_api_data_to_s3(**context):
             SET s3_use_ssl = FALSE;
 
             COPY (
-                SELECT * FROM read_csv_auto('{test_url}')
+                SELECT 
+                    *
+                    , 52.54833 AS latitude
+                    , 13.407822 AS longitude
+                    , 38 AS elevation
+                    , 'Europe/Moscow' AS timezone
+                FROM read_csv_auto('{test_url}', skip=3, normalize_names=True)
             ) TO 's3://prod/{LAYER}/{SOURCE}/{start_date}/{start_date}_00-00-00.gz.parquet';
         """)
 
