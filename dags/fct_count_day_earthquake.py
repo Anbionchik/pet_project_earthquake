@@ -6,13 +6,13 @@ from airflow.sensors.external_task import ExternalTaskSensor
 
 # Конфигурация DAG
 OWNER = "a.khlopkov"
-DAG_ID = "fct_count_day_earthquake"
+DAG_ID = "fct_count_records_day_weather"
 
 # Используемые таблицы в DAG
 LAYER = "raw"
 SOURCE = "earthquake"
 SCHEMA = "dm"
-TARGET_TABLE = "fct_count_day_earthquake"
+TARGET_TABLE = "fct_count_records_day_weather"
 
 # DWH
 PG_CONNECT = "postgres_dwh"
