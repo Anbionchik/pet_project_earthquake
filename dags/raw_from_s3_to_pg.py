@@ -9,14 +9,14 @@ from airflow.operators.python import PythonOperator
 from airflow.sensors.external_task import ExternalTaskSensor
 
 # Конфигурация DAG
-OWNER = "i.korsakov"
+OWNER = "a.khlopkov"
 DAG_ID = "raw_from_s3_to_pg"
 
 # Используемые таблицы в DAG
 LAYER = "raw"
 SOURCE = "earthquake"
 SCHEMA = "ods"
-TARGET_TABLE = "fct_earthquake"
+TARGET_TABLE = "fct_weather"
 
 # S3
 ACCESS_KEY = Variable.get("access_key")
@@ -79,52 +79,24 @@ def get_and_transfer_raw_data_to_ods_pg(**context):
 
         INSERT INTO dwh_postgres_db.{SCHEMA}.{TARGET_TABLE}
         (
-            time,
-            latitude,
-            longitude,
-            depth,
-            mag,
-            mag_type,
-            nst,
-            gap,
-            dmin,
-            rms,
-            net,
-            id,
-            updated,
-            place,
-            type,
-            horizontal_error,
-            depth_error,
-            mag_error,
-            mag_nst,
-            status,
-            location_source,
-            mag_source
+            time
+            , temperature_2m_c
+            , relative_humidity_2m
+            , dew_point_2m_c
+            , latitude
+            , longitude
+            , elevation
+            , timezone          
         )
         SELECT
-            time,
-            latitude,
-            longitude,
-            depth,
-            mag,
-            magType AS mag_type,
-            nst,
-            gap,
-            dmin,
-            rms,
-            net,
-            id,
-            updated,
-            place,
-            type,
-            horizontalError AS horizontal_error,
-            depthError AS depth_error,
-            magError AS mag_error,
-            magNst AS mag_nst,
-            status,
-            locationSource AS location_source,
-            magSource AS mag_source
+            time
+            , temperature_2m_c
+            , relative_humidity_2m
+            , dew_point_2m_c
+            , latitude
+            , longitude
+            , elevation
+            , timezone  
         FROM 's3://prod/{LAYER}/{SOURCE}/{start_date}/{start_date}_00-00-00.gz.parquet';
         """,
     )
